@@ -35,7 +35,11 @@ include $(BUILD_PREBUILT)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
-LOCAL_SRC_FILES := ca/tee_provision
+ifeq ($(TARGET_ARCH),arm)
+LOCAL_SRC_FILES := ca/bin/tee_provision
+else
+LOCAL_SRC_FILES := ca/bin64/tee_provision
+endif
 LOCAL_MODULE := tee_provision
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_MODULE_PATH := $(PRODUCT_OUT)/system/bin
