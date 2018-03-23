@@ -20,5 +20,5 @@ endif
 
 LOCAL_MODULE := tee_provision
 LOCAL_MODULE_CLASS := EXECUTABLES
-LOCAL_MODULE_PATH := $(PRODUCT_OUT)/system/bin
+LOCAL_MODULE_PATH := $(PRODUCT_OUT)/vendor/bin
 include $(BUILD_PREBUILT)
