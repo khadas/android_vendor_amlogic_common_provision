@@ -46,43 +46,29 @@ def file_write(head, start_p, length, fd, name):
 	return ret
 
 def file_get_pos(start, end, fd, cursor):
+	import re
+	import gc
 	ret = 0
-	fd.seek(0,2)
-	filelength = fd.tell();
+
 	fd.seek(cursor, 0)
+	keybuf = fd.read()
 
-	size_s = len(start)
-	size_e = len(end)
+	start_m = re.search(start, keybuf)
+	if start_m == None:
+		ret = -1
+		print "not found the start position of key\n"
+		return ret, 0, 0
 
-	j = 0
-	src = start
-	size = size_s
-	flag = 0
-
-	for i in range(0, filelength):
-		cmp= fd.read(1)
-		if cmp == src[j]:
-			j += 1
-		else:
-			j = 0
-		if j == size:
-			if flag==0:
-				start_p = fd.tell()
-				flag = 1
-				size = size_e
-				j = 0
-				src = end
-			else:
-				end_p = fd.tell()
-				flag = 2
-				break
-
-	if flag != 2:
+	end_m = re.search(end, keybuf)
+	if end_m == None:
 		ret = -1
 		return ret, 0, 0
-	else:
-		ret = 0
 
+	start_p = cursor + start_m.end()
+	end_p = cursor + end_m.end()
+
+	del keybuf
+	gc.collect()
 	return ret, start_p, end_p
 
 
@@ -124,6 +110,7 @@ def file_excision(data_file, key_s, key_e, suffix):
 
 def main():
 	import sys
+	import gc
 
 	# parse arguments
 	args = get_args()
@@ -135,5 +122,6 @@ def main():
 	ret = file_excision(args.inf, ec_key_s, ec_key_e,"ec");
 	ret = file_excision(args.inf, rsa_key_s, rsa_key_e,"rsa");
 
+	gc.collect()
 if __name__ == "__main__":
 	main()

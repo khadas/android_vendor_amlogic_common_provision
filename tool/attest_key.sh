@@ -20,6 +20,7 @@ do
 	if [ -d $dir ]
 	then
 		cd $dir
+		../../attest_parse_key.py --in Attestation.key
 		openssl rsa -inform PEM -in AttestKey.rsa.pem -outform DER -out AttestKey.rsa
 		openssl ec -inform PEM -in AttestKey.ec.pem -outform DER -out AttestKey.ec
 		openssl x509 -inform PEM -in AttestCert.rsa0.pem -outform DER -out AttestCert.rsa0

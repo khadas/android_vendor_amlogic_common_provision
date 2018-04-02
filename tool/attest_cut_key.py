@@ -112,11 +112,6 @@ def file_excision(data_file, key_s, key_e):
 		name = dir_name + "/Attestation.key"
 		file_write(key_s, start_p, end_p - start_p, fd, name)
 
-		cmd.extend(["--in=" + file_path + '/' + name])
-		cmd.extend(["--out=" + file_path + '/' +  dir_name])
-		sub = subprocess.Popen(cmd)
-		sub.communicate()
-		del sub
 		gc.collect()
 
 	fd.close()
