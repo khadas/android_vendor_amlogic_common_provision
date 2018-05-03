@@ -117,12 +117,9 @@ def file_excision(data_file, key_s, key_e):
 			sys.exit(0)
 
 		fd.seek(name_sp, 0)
-		dir_name = "provisionkey/" + fd.read(name_ep - name_sp - 2);
+		file_name = "provisionkey/" + fd.read(name_ep - name_sp - 2) + ".origin";
 
-		if os.path.exists(dir_name) == False:
-			os.mkdir(dir_name)
-		name = dir_name + "/Attestation.key"
-		file_write(key_s, start_p, end_p - start_p, fd, name)
+		file_write(key_s, start_p, end_p - start_p, fd, file_name)
 
 		gc.collect()
 
