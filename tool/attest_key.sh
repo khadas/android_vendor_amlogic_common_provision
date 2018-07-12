@@ -1,14 +1,18 @@
 #!/bin/bash
 if [ ! -n "$1" ]; then
-echo "please input keyfile\n"
-exit
+	echo "please input keyfile\n"
+	exit
 fi
 
-python attest_cut_key.py --in=$1
+if [ ! -n "$2" ]; then
+	python attest_cut_key.py --in=$1
+else
+	python attest_cut_key.py --in=$1 --skip=$2
+fi
 
 if [ "$?" != 0 ]; then
-echo "key cut fail\n"
-exit
+	echo "key cut fail\n"
+	exit
 fi
 
 midfile1="AttestCert.rsa0 AttestCert.rsa1 AttestCert.rsa2 AttestKey.rsa"

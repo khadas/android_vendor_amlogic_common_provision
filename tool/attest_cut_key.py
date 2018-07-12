@@ -30,6 +30,7 @@ def get_args():
 
 	parser = ArgumentParser()
 	parser.add_argument('--in', required=True, dest='inf', help='Name of input file')
+	parser.add_argument('--skip', type=int, default=1, help='key cutting interval')
 
 	return parser.parse_args()
 
@@ -86,6 +87,8 @@ def file_excision(data_file, key_s, key_e):
 	import logging
 	import subprocess
 
+	args = get_args()
+	skip_num = args.skip
 	log = logging.getLogger("Core.Analysis.Processing")
 	INTERPRETER = "/usr/bin/python"
 
@@ -98,18 +101,25 @@ def file_excision(data_file, key_s, key_e):
 
 	fd = open(data_file, 'rb')
 
-#	/* find the end of  the file and redundant 16 Bytes */
+	# find the end of  the file and redundant 16 Bytes
 	fd.seek(0,2)
 	file_end = fd.tell() - len("</AndroidAttestation>") - 16;
 
 	end_p = 0;
+	key_num = 0;
 	while end_p < file_end:
 		(ret, start_p, end_p) = file_get_pos(key_s, key_e, fd, end_p)
 		if ret != 0:
 			print 'error'
 			fd.close()
 			sys.exit(0)
+		if key_num % skip_num != 0:
+			# Do not skip the last key
+			if end_p + 4096 < file_end:
+				key_num += 1;
+				continue
 
+		key_num += 1;
 		(ret, name_sp, name_ep) = file_get_pos('="', '">', fd, start_p)
 		if ret != 0:
 			print 'error'
