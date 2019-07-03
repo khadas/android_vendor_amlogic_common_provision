@@ -30,6 +30,7 @@ def get_args():
 
 	parser = ArgumentParser()
 	parser.add_argument('--in', required=True, dest='inf', help='Name of input file')
+	parser.add_argument('--out', type=str, default='null', help='key output dir')
 	parser.add_argument('--skip', type=int, default=1, help='key cutting interval')
 
 	return parser.parse_args()
@@ -78,26 +79,121 @@ def file_get_pos(start, end, fd, cursor):
 	gc.collect()
 	return ret, start_p, end_p
 
+def key_pack(dirname, name_prefix):
+	import sys
+	import os
+	import struct
 
-def file_excision(data_file, key_s, key_e):
+	keyname = dirname + '/' + name_prefix + ".keybox"
+
+	keyoffset = [0] * 8
+	keysize = [0] * 8
+	keynum = 0
+# version,keynum,keyoffset[],keysize[] = 18int
+	keyheadlen = struct.calcsize('<IIIIIIIIIIIIIIIIII')
+	keyoffset[0] = keyheadlen
+
+	file_name = ("AttestKey.rsa", "AttestCert.rsa0", "AttestCert.rsa1", \
+			"AttestCert.rsa2", "AttestKey.ec", "AttestCert.ec0", \
+			"AttestCert.ec1", "AttestCert.ec2")
+
+	for i in range(0, 8):
+		if os.path.exists(dirname + "/" + file_name[i]):
+			fd = open(dirname + "/" + file_name[i], 'rb')
+			fd.seek(0, 2)
+			keysize[i] = fd.tell()
+			keynum = keynum + 1
+			fd.close()
+		else:
+			keysize[i] = 0
+
+		if i != 0:
+			keyoffset[i] = keyoffset[i-1] + keysize[i-1]
+
+	keyhead = struct.pack('<IIIIIIIIIIIIIIIIII', \
+			0x0, keynum, keyoffset[0], \
+			keysize[0], keyoffset[1], keysize[1], keyoffset[2], keysize[2], \
+			keyoffset[3], keysize[3], keyoffset[4], keysize[4], \
+			keyoffset[5], keysize[5], keyoffset[6], keysize[6], \
+			keyoffset[7], keysize[7])
+
+	fdw = open(keyname, 'w+')
+	fdw.seek(0, 0)
+	fdw.write(keyhead)
+
+	for i in range(0, 8):
+		if keysize[i] != 0:
+			fd = open(dirname + "/" + file_name[i], 'rb')
+			buf = fd.read()
+			fdw.write(buf)
+			fd.close()
+			os.system("rm -f " + dirname + "/" + file_name[i])
+
+	fdw.close()
+
+def key_partial_cut(data_file, suffix):
+
+	import sys
+	import os
+
+	cert_s = "-----BEGIN CERTIFICATE-----"
+	cert_e = "-----END CERTIFICATE-----"
+	if suffix == "ec":
+		key_s = "-----BEGIN EC PRIVATE KEY-----"
+		key_e = "-----END EC PRIVATE KEY-----"
+	else:
+		key_s = "-----BEGIN RSA PRIVATE KEY-----"
+		key_e = "-----END RSA PRIVATE KEY-----"
+
+	dirname = os.path.dirname(data_file) + "/"
+	fd = open(data_file, 'rb')
+
+	dername = dirname + "AttestKey." + suffix
+	pemname = dirname + "AttestKey." + suffix + ".pem"
+	(ret, start_p, end_p) = file_get_pos(key_s, key_e, fd, 0)
+	if ret != 0:
+		print 'cannot find the specified string %s or %s after the seek of the file' %(key_s, key_e)
+		fd.close()
+		sys.exit(0)
+
+
+	ret = file_write(key_s, start_p, end_p - start_p, fd, pemname)
+	if ret != 0:
+		print 'write file %s failed' %pemname
+		fd.close()
+		sys.exit(0)
+	cmd = "openssl " + suffix + " -inform PEM -in " + pemname + " -outform DER -out " + dername
+	os.system(cmd)
+	os.system("rm -f " + pemname)
+
+	for i in range(0, 3):
+		(ret, start_p, end_p) = file_get_pos(cert_s, cert_e, fd, end_p)
+		if ret != 0:
+			print 'cannot find the specified string %s or %s after the seek of the file' %(cert_s, cert_e)
+			sys.exit(0)
+		dername = dirname + "AttestCert." + suffix + bytes(i)
+		pemname = dirname + "AttestCert." + suffix + bytes(i) + ".pem"
+		ret = file_write(cert_s, start_p, end_p - start_p, fd, pemname)
+		os.system("openssl x509 -inform PEM -in " + pemname + " -outform DER -out " + dername)
+		os.system("rm -f " + pemname)
+		if ret != 0:
+			print 'write file %s failed' %pemname
+			sys.exit(0)
+
+	fd.close()
+
+	return ret
+
+def key_file_cut(data_file, dirname):
 
 	import sys
 	import os
 	import gc
-	import logging
-	import subprocess
 
+	key_s = "<Keybox DeviceID"
+	key_e = "</Key></Keybox>"
 	args = get_args()
 	skip_num = args.skip
-	log = logging.getLogger("Core.Analysis.Processing")
-	INTERPRETER = "/usr/bin/python"
-
-	file_path = str(sys.path[0])
-	processor1 = file_path + "/attest_parse_key.py"
-	cmd = [INTERPRETER, processor1]
-
-	if not os.path.exists(INTERPRETER):
-		log.error("Cannot find INTERPRETER at path \"%s\"." % INTERPRETER)
 
 	fd = open(data_file, 'rb')
 
@@ -110,7 +206,7 @@ def file_excision(data_file, key_s, key_e):
 	while end_p < file_end:
 		(ret, start_p, end_p) = file_get_pos(key_s, key_e, fd, end_p)
 		if ret != 0:
-			print 'error'
+			print 'cannot find the specified string %s or %s after the seek of the file' %(key_s, key_e)
 			fd.close()
 			sys.exit(0)
 		if key_num % skip_num != 0:
@@ -122,14 +218,19 @@ def file_excision(data_file, key_s, key_e):
 		key_num += 1;
 		(ret, name_sp, name_ep) = file_get_pos('="', '">', fd, start_p)
 		if ret != 0:
-			print 'error'
+			print 'cannot find the specified string = or > after the seek of the file'
 			fd.close()
 			sys.exit(0)
 
 		fd.seek(name_sp, 0)
-		file_name = "provisionkey/" + fd.read(name_ep - name_sp - 2) + ".origin";
+		name_prefix = fd.read(name_ep - name_sp - 2)
+		file_name = dirname + "/" + name_prefix + ".origin";
 
 		file_write(key_s, start_p, end_p - start_p, fd, file_name)
+		key_partial_cut(file_name, "ec")
+		key_partial_cut(file_name, "rsa")
+		os.system("rm -f " + file_name)
+		key_pack(dirname, name_prefix)
 
 		gc.collect()
 
@@ -144,12 +245,14 @@ def main():
 	# parse arguments
 	args = get_args()
 
-	key_start = "<Keybox DeviceID"
-	key_end = "</Key></Keybox>"
-	if os.path.exists("provisionkey") == False:
-		os.mkdir("provisionkey")
+	if args.out != 'null':
+		dirname = args.out
+		if os.path.exists(dirname) == False:
+			os.mkdir(dirname)
+	else:
+		dirname = "./"
 
-	ret = file_excision(args.inf, key_start, key_end);
+	ret = key_file_cut(args.inf, dirname);
 
 if __name__ == "__main__":
 	main()
