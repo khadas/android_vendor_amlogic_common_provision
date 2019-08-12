@@ -93,9 +93,8 @@ def key_pack(dirname, name_prefix):
 	keyheadlen = struct.calcsize('<IIIIIIIIIIIIIIIIII')
 	keyoffset[0] = keyheadlen
 
-	file_name = ("AttestKey.rsa", "AttestCert.rsa0", "AttestCert.rsa1", \
-			"AttestCert.rsa2", "AttestKey.ec", "AttestCert.ec0", \
-			"AttestCert.ec1", "AttestCert.ec2")
+	file_name = ("AttestKey.ec", "AttestCert.ec0", "AttestCert.ec1", "AttestCert.ec2", \
+			"AttestKey.rsa", "AttestCert.rsa0", "AttestCert.rsa1", "AttestCert.rsa2", )
 
 	for i in range(0, 8):
 		if os.path.exists(dirname + "/" + file_name[i]):
@@ -111,7 +110,7 @@ def key_pack(dirname, name_prefix):
 			keyoffset[i] = keyoffset[i-1] + keysize[i-1]
 
 	keyhead = struct.pack('<IIIIIIIIIIIIIIIIII', \
-			0x0, keynum, keyoffset[0], \
+			0x2, keynum, keyoffset[0], \
 			keysize[0], keyoffset[1], keysize[1], keyoffset[2], keysize[2], \
 			keyoffset[3], keysize[3], keyoffset[4], keysize[4], \
 			keyoffset[5], keysize[5], keyoffset[6], keysize[6], \
