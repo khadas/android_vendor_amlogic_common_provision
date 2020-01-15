@@ -32,3 +32,18 @@ LOCAL_MODULE := tee_provision
 LOCAL_MODULE_CLASS := EXECUTABLES
 LOCAL_MODULE_PATH := $(OUT_PATH)/bin
 include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE_TAGS := optional
+
+ifeq ($(TARGET_ARCH), arm)
+LOCAL_SRC_FILES := bin/tee_key_inject
+else
+LOCAL_SRC_FILES := bin64/tee_key_inject
+endif
+
+LOCAL_INIT_RC := tee_key_inject.rc
+LOCAL_MODULE := tee_key_inject
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_PATH := $(OUT_PATH)/bin
+include $(BUILD_PREBUILT)
