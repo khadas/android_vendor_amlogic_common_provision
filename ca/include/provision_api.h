@@ -39,15 +39,24 @@
 #define PROVISION_KEY_TYPE_HDCP_RX22_FW_PRIVATE        0x36
 #define PROVISION_KEY_TYPE_KEYMASTER                   0x41
 #define PROVISION_KEY_TYPE_KEYMASTER_3                 0x42
+#define PROVISION_KEY_TYPE_KEYMASTER_3_ATTEST_DEV_ID_BOX  0x43
 #define PROVISION_KEY_TYPE_EFUSE                       0x51
 #define PROVISION_KEY_TYPE_CIPLUS                      0x61
 #define PROVISION_KEY_TYPE_NAGRA_DEV_UUID              0x71
 #define PROVISION_KEY_TYPE_NAGRA_DEV_SECRET            0x72
 #define PROVISION_KEY_TYPE_PFID                        0x81
 #define PROVISION_KEY_TYPE_PFPK                        0x82
+#define PROVISION_KEY_TYPE_NETFLIX_MGKID               0xA2
+#define PROVISION_KEY_TYPE_WIDEVINE_CAS                0xB1
 #define PROVISION_KEY_TYPE_INVALID                     0xFFFFFFFF
 
-#define PROVISION_KEY_CHECKSUM_LENGTH                  32
+// PFID: Provision Feild ID
+#define PROVISION_PFID_LENGTH                          (16)
+
+// DAC: Device Authentication Code
+#define PROVISION_DAC_LENGTH                           (32)
+
+#define PROVISION_KEY_CHECKSUM_LENGTH                  (32)
 
 #define TEE_STORAGE_PRIVATE_REE      0x80000000
 #define TEE_STORAGE_PRIVATE_RPMB     0x80000100
