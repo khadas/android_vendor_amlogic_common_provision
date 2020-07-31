@@ -91,4 +91,6 @@ int32_t key_provision_checksum(uint32_t key_type, uint8_t *name_buff,
 int32_t key_provision_checksum_v2(uint32_t key_type, uint8_t *name_buff,
 		uint32_t name_size, uint8_t *uuid, uint8_t *checksum);
 
+int32_t key_provision_delete(uint32_t key_type, const uint8_t* uuid);
+
 #endif /* _PROVISION_API_H_ */
