@@ -31,6 +31,7 @@ def get_args():
 def main():
 	import os
 	import sys
+	import binascii
 
 	if not os.path.exists(VENDOR_KEYTOOL):
 		print VENDOR_KEYTOOL + " not exist"
@@ -47,7 +48,7 @@ def main():
 	pcpk = os.popen(cmd).read()
 
 	f = open(CHIP + "_pcpk.bin", 'wb')
-	f.write(pcpk)
+	f.write(binascii.unhexlify(pcpk[:32]))
 	f.close()
 
 	print 'Generating PCPK ...'
