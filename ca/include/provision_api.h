@@ -34,7 +34,7 @@
 #define PROVISION_KEY_TYPE_HDCP_TX14                   0x31
 #define PROVISION_KEY_TYPE_HDCP_TX22                   0x32
 #define PROVISION_KEY_TYPE_HDCP_RX14                   0x33
-#define PROVISION_KEY_TYPE_HDCP_RX22                   0x34
+#define PROVISION_KEY_TYPE_HDCP_RX22_WFD               0x34
 #define PROVISION_KEY_TYPE_HDCP_RX22_FW                0x35
 #define PROVISION_KEY_TYPE_HDCP_RX22_FW_PRIVATE        0x36
 #define PROVISION_KEY_TYPE_KEYMASTER                   0x41
