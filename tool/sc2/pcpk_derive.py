@@ -10,7 +10,7 @@
 
 import sys
 
-VENDOR_KEYTOOL = sys.path[0] + "/../../../../../../bootloader/uboot-repo/fip/sc2/vendor-keytool"
+VENDOR_KEYTOOL = sys.path[0] + "/../../../../../../bootloader/uboot-repo/fip/sc2/binary-tool/vendor-keytool"
 ALGO = "gen-prot-aes128"
 CHIP = "SC2"
 MRK_NAME = "DGPK1"
