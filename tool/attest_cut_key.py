@@ -126,14 +126,18 @@ def key_pack(dirname, name_prefix):
 			buf = fd.read()
 			fdw.write(buf)
 			fd.close()
-			os.system("rm -f " + dirname + "/" + file_name[i])
+			os.remove(dirname + "/" + file_name[i])
 
 	fdw.close()
+	print keyname + ' generated!'
 
 def key_partial_cut(data_file, suffix):
 
 	import sys
 	import os
+	import ssl
+	from cryptography.hazmat.backends import default_backend
+	from cryptography.hazmat.primitives import serialization
 
 	cert_s = "-----BEGIN CERTIFICATE-----"
 	cert_e = "-----END CERTIFICATE-----"
@@ -161,9 +165,26 @@ def key_partial_cut(data_file, suffix):
 		print 'write file %s failed' %pemname
 		fd.close()
 		sys.exit(0)
-	cmd = "openssl " + suffix + " -inform PEM -in " + pemname + " -outform DER -out " + dername
-	os.system(cmd)
-	os.system("rm -f " + pemname)
+
+	with open(pemname, "rb") as keyfile:
+		# Load the PEM format key
+		pemkey = serialization.load_pem_private_key(
+				keyfile.read(), None, default_backend())
+		keyfile.close()
+
+		# Serialize it to DER format
+		derkey = pemkey.private_bytes(
+				serialization.Encoding.DER,
+				serialization.PrivateFormat.TraditionalOpenSSL,
+				serialization.NoEncryption()
+				)
+
+		# And write the DER format to a file
+		with open(dername, "wb") as outfile:
+			outfile.write(derkey)
+			outfile.close()
+
+	os.remove(pemname)
 
 	for i in range(0, 3):
 		(ret, start_p, end_p) = file_get_pos(cert_s, cert_e, fd, end_p)
@@ -173,8 +194,18 @@ def key_partial_cut(data_file, suffix):
 		dername = dirname + "AttestCert." + suffix + bytes(i)
 		pemname = dirname + "AttestCert." + suffix + bytes(i) + ".pem"
 		ret = file_write(cert_s, start_p, end_p - start_p, fd, pemname)
-		os.system("openssl x509 -inform PEM -in " + pemname + " -outform DER -out " + dername)
-		os.system("rm -f " + pemname)
+
+		pem_file = open(pemname, 'rb')
+		pem_data = pem_file.read()
+		pem_file.close()
+
+		der_data = ssl.PEM_cert_to_DER_cert(pem_data)
+
+		der_file = open(dername, 'wb')
+		der_file.write(der_data)
+		der_file.close()
+
+		os.remove(pemname)
 		if ret != 0:
 			print 'write file %s failed' %pemname
 			sys.exit(0)
@@ -228,7 +259,7 @@ def key_file_cut(data_file, dirname):
 		file_write(key_s, start_p, end_p - start_p, fd, file_name)
 		key_partial_cut(file_name, "ec")
 		key_partial_cut(file_name, "rsa")
-		os.system("rm -f " + file_name)
+		os.remove(file_name)
 		key_pack(dirname, name_prefix)
 
 		gc.collect()
