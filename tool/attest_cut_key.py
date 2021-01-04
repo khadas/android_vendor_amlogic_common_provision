@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018 Amlogic, Inc. All rights reserved.
 #
@@ -32,6 +32,8 @@ def get_args():
 	parser.add_argument('--in', required=True, dest='inf', help='Name of input file')
 	parser.add_argument('--out', type=str, default='null', help='key output dir')
 	parser.add_argument('--skip', type=int, default=1, help='key cutting interval')
+	parser.add_argument('--start', type=int, default=0, help='first key index')
+	parser.add_argument('--count', type=int, default=-1, help='to cut key count')
 
 	return parser.parse_args()
 
@@ -43,7 +45,7 @@ def file_write(head, start_p, length, fd, name):
 
 	fd1.write(head)
 	fd.seek(start_p, 0)
-	buf = fd.read(length)
+	buf = fd.read(length).decode()
 	fd1.write(buf)
 
 	del buf
@@ -59,12 +61,12 @@ def file_get_pos(start, end, fd, cursor):
 
 	fd.seek(cursor, 0)
 # 16KB buf > a attestation key size
-	keybuf = fd.read(0x4000)
+	keybuf = fd.read(0x4000).decode()
 
 	start_m = re.search(start, keybuf)
 	if start_m == None:
 		ret = -1
-		print "not found the start position of key\n"
+		print ("not found the start position of key\n")
 		return ret, 0, 0
 
 	end_m = re.search(end, keybuf)
@@ -116,20 +118,19 @@ def key_pack(dirname, name_prefix):
 			keyoffset[5], keysize[5], keyoffset[6], keysize[6], \
 			keyoffset[7], keysize[7])
 
-	fdw = open(keyname, 'w+')
-	fdw.seek(0, 0)
-	fdw.write(keyhead)
-
+	keybox_data = keyhead
 	for i in range(0, 8):
 		if keysize[i] != 0:
 			fd = open(dirname + "/" + file_name[i], 'rb')
-			buf = fd.read()
-			fdw.write(buf)
+			keybox_data = keybox_data + fd.read()
 			fd.close()
 			os.remove(dirname + "/" + file_name[i])
 
+	fdw = open(keyname, 'w+b')
+	fdw.write(keybox_data)
 	fdw.close()
-	print keyname + ' generated!'
+
+	print (keyname + ' generated!')
 
 def key_partial_cut(data_file, suffix):
 
@@ -155,14 +156,14 @@ def key_partial_cut(data_file, suffix):
 	pemname = dirname + "AttestKey." + suffix + ".pem"
 	(ret, start_p, end_p) = file_get_pos(key_s, key_e, fd, 0)
 	if ret != 0:
-		print 'cannot find the specified string %s or %s after the seek of the file' %(key_s, key_e)
+		print ('cannot find the specified string %s or %s after the seek of the file' %(key_s, key_e))
 		fd.close()
 		sys.exit(0)
 
 
 	ret = file_write(key_s, start_p, end_p - start_p, fd, pemname)
 	if ret != 0:
-		print 'write file %s failed' %pemname
+		print ('write file %s failed' %pemname)
 		fd.close()
 		sys.exit(0)
 
@@ -189,14 +190,14 @@ def key_partial_cut(data_file, suffix):
 	for i in range(0, 3):
 		(ret, start_p, end_p) = file_get_pos(cert_s, cert_e, fd, end_p)
 		if ret != 0:
-			print 'cannot find the specified string %s or %s after the seek of the file' %(cert_s, cert_e)
+			print ('cannot find the specified string %s or %s after the seek of the file' %(cert_s, cert_e))
 			sys.exit(0)
-		dername = dirname + "AttestCert." + suffix + bytes(i)
-		pemname = dirname + "AttestCert." + suffix + bytes(i) + ".pem"
+		dername = dirname + "AttestCert." + suffix + str(i)
+		pemname = dirname + "AttestCert." + suffix + str(i) + ".pem"
 		ret = file_write(cert_s, start_p, end_p - start_p, fd, pemname)
 
 		pem_file = open(pemname, 'rb')
-		pem_data = pem_file.read()
+		pem_data = pem_file.read().decode()
 		pem_file.close()
 
 		der_data = ssl.PEM_cert_to_DER_cert(pem_data)
@@ -207,7 +208,7 @@ def key_partial_cut(data_file, suffix):
 
 		os.remove(pemname)
 		if ret != 0:
-			print 'write file %s failed' %pemname
+			print ('write file %s failed' %pemname)
 			sys.exit(0)
 
 	fd.close()
@@ -232,11 +233,22 @@ def key_file_cut(data_file, dirname):
 	file_end = fd.tell() - len("</AndroidAttestation>") - 16;
 
 	end_p = 0;
+	start_idx = args.start
+	i = 0
+	while i < start_idx and end_p < file_end:
+		(ret, start_p, end_p) = file_get_pos(key_s, key_e, fd, end_p)
+		if ret != 0:
+			print ('cannot find the specified string %s or %s after the seek of the file' %(key_s, key_e))
+			fd.close()
+			sys.exit(0)
+		i = i + 1
+
+	valid_key_cnt = 0
 	key_num = 0;
 	while end_p < file_end:
 		(ret, start_p, end_p) = file_get_pos(key_s, key_e, fd, end_p)
 		if ret != 0:
-			print 'cannot find the specified string %s or %s after the seek of the file' %(key_s, key_e)
+			print ('cannot find the specified string %s or %s after the seek of the file' %(key_s, key_e))
 			fd.close()
 			sys.exit(0)
 		if key_num % skip_num != 0:
@@ -248,12 +260,12 @@ def key_file_cut(data_file, dirname):
 		key_num += 1;
 		(ret, name_sp, name_ep) = file_get_pos('="', '">', fd, start_p)
 		if ret != 0:
-			print 'cannot find the specified string = or > after the seek of the file'
+			print ('cannot find the specified string = or > after the seek of the file')
 			fd.close()
 			sys.exit(0)
 
 		fd.seek(name_sp, 0)
-		name_prefix = fd.read(name_ep - name_sp - 2)
+		name_prefix = fd.read(name_ep - name_sp - 2).decode()
 		file_name = dirname + "/" + name_prefix + ".origin";
 
 		file_write(key_s, start_p, end_p - start_p, fd, file_name)
@@ -264,6 +276,11 @@ def key_file_cut(data_file, dirname):
 
 		gc.collect()
 
+		valid_key_cnt = valid_key_cnt + 1
+		if args.count > 0:
+			if valid_key_cnt >= args.count:
+				break
+
 	fd.close()
 
 	return ret
@@ -271,6 +288,9 @@ def key_file_cut(data_file, dirname):
 def main():
 	import os
 	import sys
+	import time
+
+	start_time = time.perf_counter()
 
 	# parse arguments
 	args = get_args()
@@ -283,6 +303,8 @@ def main():
 		dirname = "./"
 
 	ret = key_file_cut(args.inf, dirname);
+
+	print ('spent time: %f seconds' %(time.perf_counter() - start_time))
 
 if __name__ == "__main__":
 	main()
