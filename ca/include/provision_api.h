@@ -63,6 +63,7 @@
 
 #define TEE_STORAGE_PRIVATE_REE      0x80000000
 #define TEE_STORAGE_PRIVATE_RPMB     0x80000100
+#define TEE_STORAGE_PRIVATE_EFUSE    0xF0000000
 
 #ifdef __cplusplus
 extern "C" {
