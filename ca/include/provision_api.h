@@ -46,8 +46,10 @@
 #define PROVISION_KEY_TYPE_NAGRA_DEV_SECRET            0x72
 #define PROVISION_KEY_TYPE_PFID                        0x81
 #define PROVISION_KEY_TYPE_PFPK                        0x82
+#define PROVISION_KEY_TYPE_YOUTUBE_SECRET              0x91
 #define PROVISION_KEY_TYPE_NETFLIX_MGKID               0xA2
 #define PROVISION_KEY_TYPE_WIDEVINE_CAS                0xB1
+#define PROVISION_KEY_TYPE_DOLBY_ID                    0xC1
 #define PROVISION_KEY_TYPE_INVALID                     0xFFFFFFFF
 
 // PFID: Provision Feild ID
