@@ -6,10 +6,9 @@ import os
 
 DEBUG_ENABLE = 0
 
-
 ##### SC2 Efuse Configuration #####
 SC2_EFUSE_ENTIRE_SIZE       = 4096
-EFUSE_PATTERN_OUTPUT = "efuse_pattern.bin"
+EFUSE_PATTERN_OUTPUT = "sc2_dgpk_efuse_pattern"
 EFUSE_ENCRYPT_TOOL = "./aml_encrypt_sc2"
 
 ##### DGPK Configuration #####

@@ -10,7 +10,7 @@
 
 import sys
 
-CHIP = "sc2"
+CHIP = "t7"
 VENDOR_KEYTOOL = sys.path[0] + "/../../../../../../bootloader/uboot-repo/fip/" + CHIP + "/binary-tool/vendor-keytool"
 ALGO = "gen-prot-aes128"
 MRK_NAME = "DGPK1"
@@ -40,7 +40,8 @@ def main():
 	args = get_args()
 	mrk = args.dgpk1
 
-	cmd = VENDOR_KEYTOOL + " " + ALGO + " --chipset=" + CHIP.upper() + " --mrk=" \
+	# due to the parameter "T7" aren't supported, can only use "SC2"
+	cmd = VENDOR_KEYTOOL + " " + ALGO + " --chipset=" + "SC2" + " --mrk=" \
 	      + mrk + " --mrk-name=" + MRK_NAME + " --boot-stage=" \
 		+ str(BOOT_STAGE) + " --ek3=" + EK3 + " --ek2=" + EK2 \
 		+ " --ek1=" + EK1
