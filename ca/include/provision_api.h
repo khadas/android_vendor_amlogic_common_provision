@@ -42,6 +42,7 @@
 #define PROVISION_KEY_TYPE_KEYMASTER_3_ATTEST_DEV_ID_BOX  0x43
 #define PROVISION_KEY_TYPE_EFUSE                       0x51
 #define PROVISION_KEY_TYPE_CIPLUS                      0x61
+#define PROVISION_KEY_TYPE_CIPLUS_ECP                  0x62
 #define PROVISION_KEY_TYPE_NAGRA_DEV_UUID              0x71
 #define PROVISION_KEY_TYPE_NAGRA_DEV_SECRET            0x72
 #define PROVISION_KEY_TYPE_PFID                        0x81
@@ -63,6 +64,9 @@
 #define TEE_STORAGE_PRIVATE_REE      0x80000000
 #define TEE_STORAGE_PRIVATE_RPMB     0x80000100
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 int32_t key_provision_store(
 		uint8_t *name_buff,
 		uint32_t name_size,
@@ -94,5 +98,8 @@ int32_t key_provision_checksum_v2(uint32_t key_type, uint8_t *name_buff,
 		uint32_t name_size, uint8_t *uuid, uint8_t *checksum);
 
 int32_t key_provision_delete(uint32_t key_type, const uint8_t* uuid);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PROVISION_API_H_ */
