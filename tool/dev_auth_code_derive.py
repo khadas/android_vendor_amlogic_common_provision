@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2016 Amlogic, Inc. All rights reserved.
 #
@@ -47,10 +47,10 @@ def main():
 	f.write(dac)
 	f.close()
 
-	print 'Device Authentication Code Derive ...'
-	print '  Input:                 pfpk file = ' + args.pfpk
-	print '                         pfid file = ' + args.pfid
-	print '  Output:                 dac file = ' + args.dac
+	print ('Device Authentication Code Derive ...')
+	print ('  Input:                 pfpk file = ' + args.pfpk)
+	print ('                         pfid file = ' + args.pfid)
+	print ('  Output:                 dac file = ' + args.dac)
 
 if __name__ == "__main__":
 	main()

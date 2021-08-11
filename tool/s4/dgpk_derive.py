@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2016 Amlogic, Inc. All rights reserved.
 #
@@ -13,7 +13,7 @@ def main():
 	import os
 	import random
 	import uuid
-	from Crypto.Hash import SHA256
+	from Cryptodome.Hash import SHA256
 
 	uuid = uuid.uuid4()
 	sha = SHA256.new()
@@ -30,9 +30,9 @@ def main():
 	f.write(dgpk2)
 	f.close()
 
-	print 'Generating DGPK1 and DGPK2 ...'
-	print 'Output:    DGPK1(dgpk1.bin) = ' + sha.hexdigest()[:32]
-	print '           DGPK2(dgpk2.bin) = ' + sha.hexdigest()[32:]
+	print ('Generating DGPK1 and DGPK2 ...')
+	print ('Output:    DGPK1(dgpk1.bin) = ' + sha.hexdigest()[:32])
+	print ('           DGPK2(dgpk2.bin) = ' + sha.hexdigest()[32:])
 
 if __name__ == "__main__":
 	main()

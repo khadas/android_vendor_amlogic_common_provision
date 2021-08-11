@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2016 Amlogic, Inc. All rights reserved.
 #
@@ -89,25 +89,25 @@ def main():
 			args.count, args.out_dir)
 	derive_pfpk_files(16, args.count, args.out_dir)
 
-	print 'Provision Key Derive ...'
-	print '  Input:                 model_id = ' + str(args.model_id)
-	print '                           sub_id = ' + str(args.sub_id)
-	print '                     counter_base = ' + str(args.counter_base)
-	print '                            count = ' + str(args.count)
-	print '                          out_dir = ' + args.out_dir
+	print ('Provision Key Derive ...')
+	print ('  Input:                 model_id = ' + str(args.model_id))
+	print ('                           sub_id = ' + str(args.sub_id))
+	print ('                     counter_base = ' + str(args.counter_base))
+	print ('                            count = ' + str(args.count))
+	print ('                          out_dir = ' + args.out_dir)
 	if args.count == 1:
-		print '  Output:               pcpk file = pcpk.bin'
-		print '                         pek file = pek.bin'
-		print '                        pfid file = pfid.bin'
-		print '                        pfpk file = pfpk.bin'
+		print ('  Output:               pcpk file = pcpk.bin')
+		print ('                         pek file = pek.bin')
+		print ('                        pfid file = pfid.bin')
+		print ('                        pfpk file = pfpk.bin')
 	else:
-		print '  Output:               pcpk file = pcpk.bin'
-		print '                         pek file = pek-{1...' \
-			+ str(args.count) + '}.bin'
-		print '                        pfid file = pfid-{1...' \
-			+ str(args.count) + '}.bin'
-		print '                        pfpk file = pfpk-{1...' \
-			+ str(args.count) + '}.bin'
+		print ('  Output:               pcpk file = pcpk.bin')
+		print ('                         pek file = pek-{1...' \
+			+ str(args.count) + '}.bin')
+		print ('                        pfid file = pfid-{1...' \
+			+ str(args.count) + '}.bin')
+		print ('                        pfpk file = pfpk-{1...' \
+			+ str(args.count) + '}.bin')
 
 if __name__ == "__main__":
 	main()

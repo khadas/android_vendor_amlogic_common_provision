@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2016 Amlogic, Inc. All rights reserved.
 #
@@ -34,7 +34,7 @@ def main():
 	import binascii
 
 	if not os.path.exists(VENDOR_KEYTOOL):
-		print VENDOR_KEYTOOL + " not exist"
+		print (VENDOR_KEYTOOL + " not exist")
 		sys.exit(1)
 
 	args = get_args()
@@ -52,9 +52,9 @@ def main():
 	f.write(binascii.unhexlify(pcpk[:32]))
 	f.close()
 
-	print 'Generating PCPK ...'
-	print "  Input: DGPK1 = " + args.dgpk1
-	print "  Output: PCPK(" + CHIP + "_pcpk.bin)" + " = " + pcpk
+	print ('Generating PCPK ...')
+	print ("  Input: DGPK1 = " + args.dgpk1)
+	print ("  Output: PCPK(" + CHIP + "_pcpk.bin)" + " = " + pcpk)
 
 if __name__ == "__main__":
 	main()
