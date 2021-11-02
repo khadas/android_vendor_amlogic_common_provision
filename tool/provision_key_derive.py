@@ -25,11 +25,13 @@ def get_args():
 
 	return parser.parse_args()
 
-def derive_random(buf, size):
-	import random
+def derive_random():
+	import uuid
+	from hashlib import md5
 
-	for i in range(size):
-		buf.append(random.randint(0, 255))
+	md = md5()
+	md.update(uuid.uuid4().bytes_le)
+	return md.digest()
 
 def make_file_path(file_dir, pre_file_name, file_no, need_no):
 	if need_no == True:
@@ -38,23 +40,20 @@ def make_file_path(file_dir, pre_file_name, file_no, need_no):
 	else:
 		return file_dir + "/" + pre_file_name + ".bin"
 
-def derive_key_files(key_size, key_cnt, key_name, out_dir):
+def derive_key_files(key_cnt, key_name, out_dir):
 	import struct
 
-	key = []
 	for i in range(1, key_cnt + 1):
-		derive_random(key, key_size)
 		f = open(make_file_path(out_dir, key_name, i, key_cnt > 1), \
 				'wb')
-		for j in range(key_size):
-			f.write(struct.pack("B", key[j]))
+		f.write(derive_random())
 		f.close()
 
-def derive_pcpk_file(key_size, out_dir):
-	derive_key_files(key_size, 1, "pcpk", out_dir)
+def derive_pcpk_file(out_dir):
+	derive_key_files(1, "pcpk", out_dir)
 
-def derive_pek_files(key_size, key_cnt, out_dir):
-	derive_key_files(key_size, key_cnt, "pek", out_dir)
+def derive_pek_files(key_cnt, out_dir):
+	derive_key_files(key_cnt, "pek", out_dir)
 
 def derive_pfid_files(model_id, sub_id, counter_base, id_cnt, out_dir):
 	import numpy
@@ -67,8 +66,8 @@ def derive_pfid_files(model_id, sub_id, counter_base, id_cnt, out_dir):
 		f.write(struct.pack('Q', numpy.int64(counter_base + i)))
 		f.close()
 
-def derive_pfpk_files(key_size, key_cnt, out_dir):
-	derive_key_files(key_size, key_cnt, "pfpk", out_dir)
+def derive_pfpk_files(key_cnt, out_dir):
+	derive_key_files(key_cnt, "pfpk", out_dir)
 
 # pcpk:		provision common protect key
 # pek:		provision encrypt key
@@ -83,11 +82,11 @@ def main():
 	if not os.path.exists(args.out_dir):
 		os.mkdir(args.out_dir)
 
-	derive_pcpk_file(16, args.out_dir)
-	derive_pek_files(16, args.count, args.out_dir)
+	derive_pcpk_file(args.out_dir)
+	derive_pek_files(args.count, args.out_dir)
 	derive_pfid_files(args.model_id, args.sub_id, args.counter_base, \
 			args.count, args.out_dir)
-	derive_pfpk_files(16, args.count, args.out_dir)
+	derive_pfpk_files(args.count, args.out_dir)
 
 	print ('Provision Key Derive ...')
 	print ('  Input:                 model_id = ' + str(args.model_id))
