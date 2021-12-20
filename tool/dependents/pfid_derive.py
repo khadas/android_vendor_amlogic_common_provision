@@ -38,10 +38,10 @@ def main():
 	for i in range(1, args.count + 1):
 		fpath = args.out_dir + '/' + args.soc + '_' + TARGET_NAME + '_' + str(i).zfill(9) + '.bin'
 		f = open(fpath, 'wb')
-		f.write(struct.pack('<H', args.model_id))
-		f.write(struct.pack('<H', args.sub_id))
-		f.write(struct.pack('<I', args.counter_base + i))
 		f.write(8 * b'\x00')
+		f.write(struct.pack('>H', args.model_id))
+		f.write(struct.pack('>H', args.sub_id))
+		f.write(struct.pack('>I', args.counter_base + i))
 		f.close()
 
 		derived_num = derived_num + 1

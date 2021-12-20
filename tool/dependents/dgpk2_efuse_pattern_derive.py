@@ -53,6 +53,7 @@ def derive_one_pattern(args, dgpk2_file, pfid_file, idx):
 	if len(pfid) != PFID_SIZE:
 		print('pfid size error')
 		sys.exit(1)
+	pfid = pfid[8:]
 
 	out_file = args.out_dir + '/' + args.soc + '_' + TARGET_NAME + '_' + idx + '.bin'
 
