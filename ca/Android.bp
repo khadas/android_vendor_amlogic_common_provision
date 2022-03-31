@@ -1,0 +1,62 @@
+cc_prebuilt_library_shared {
+    name: "libprovision",
+    multilib: {
+        lib32: {
+            srcs: ["lib/libprovision.so"],
+        },
+        lib64: {
+            srcs: ["lib64/libprovision.so"],
+        },
+    },
+    compile_multilib: "both",
+
+    strip: {
+        none:true,
+    },
+    proprietary: true,
+    shared_libs: [
+        "libteec",
+    ],
+}
+
+cc_prebuilt_binary {
+    name: "tee_provision",
+    arch: {
+        arm: {
+            srcs: ["bin/tee_provision"],
+        },
+        arm64: {
+            srcs: ["bin64/tee_provision"],
+        },
+    },
+
+    strip: {
+        none:true,
+    },
+    proprietary: true,
+    shared_libs: [
+        "libprovision",
+    ],
+}
+
+cc_prebuilt_binary {
+    name: "tee_key_inject",
+    arch: {
+        arm: {
+            srcs: ["bin/tee_key_inject"],
+        },
+        arm64: {
+            srcs: ["bin64/tee_key_inject"],
+        },
+    },
+    init_rc: ["tee_key_inject.rc"],
+
+    strip: {
+        none:true,
+    },
+    proprietary: true,
+    shared_libs: [
+        "libteec",
+        "libprovision",
+    ],
+}
