@@ -91,6 +91,8 @@ int32_t key_provision_query_v2(
 
 int32_t key_provision_get_pfid(uint8_t *pfid, uint32_t *id_size);
 int32_t key_provision_get_dac(uint8_t *dac, uint32_t *dac_size);
+int32_t key_provision_get_dac_v2(uint8_t *dac, uint32_t *dac_size,
+		const uint8_t *pfid_extend_str, uint32_t pfid_extend_size);
 
 int32_t key_provision_checksum(uint32_t key_type, uint8_t *name_buff,
 		uint32_t name_size, uint8_t *checksum);
