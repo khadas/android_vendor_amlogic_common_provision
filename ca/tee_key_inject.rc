@@ -1,4 +1,4 @@
-on property:vold.post_fs_data_done=1
+on property:vold.post_fs_data_done=1 && property:init.svc.vendor.tee_preload_fw=running
 	start vendor.key_inject
 	setprop vendor.tee_key_inject 1
 
