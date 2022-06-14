@@ -1,5 +1,27 @@
+bootstrap_go_package {
+    name: "soong-droidlogic_provision",
+    pkgPath: "android/soong/vendor/amlogic/common/provision/ca",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-genrule",
+    ],
+    srcs: [
+        "droidlogic_provision.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
+provision_go_defaults {
+    name: "provision_go_defaults",
+}
+
 cc_prebuilt_library_shared {
     name: "libprovision",
+
     multilib: {
         lib32: {
             srcs: ["lib/libprovision.so"],
@@ -21,6 +43,8 @@ cc_prebuilt_library_shared {
 
 cc_prebuilt_binary {
     name: "tee_provision",
+    defaults: ["provision_go_defaults"],
+
     arch: {
         arm: {
             srcs: ["bin/tee_provision"],
@@ -41,6 +65,8 @@ cc_prebuilt_binary {
 
 cc_prebuilt_binary {
     name: "tee_key_inject",
+    defaults: ["provision_go_defaults"],
+
     arch: {
         arm: {
             srcs: ["bin/tee_key_inject"],
